@@ -15,10 +15,12 @@ class Product extends Model
         'name',
         'description',
         'price',
+        'category_id',
+        'stock',
     ];
 
-    public function getFormattedPriceAttribute()
+    public function category()
     {
-        return number_format($this->price, 2, ',', '.');
+        return $this->belongsTo(Category::class);
     }
 }
