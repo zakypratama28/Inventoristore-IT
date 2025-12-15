@@ -100,132 +100,205 @@
             </div>
         </div>
     </div>
-
-
-    {{-- Row Chart: Produk per Kategori & Harga Produk --}}
-    <div class="row mt-4">
-        {{-- Chart 1: Produk per Kategori --}}
-        <div class="col-lg-6 mb-4">
-            <div class="card z-index-2">
-                <div class="card-header p-3 pb-0">
-                    <h6>Produk per Kategori</h6>
-                    <p class="text-sm mb-0">
-                        Menampilkan jumlah produk di setiap kategori.
-                    </p>
-                </div>
-                <div class="card-body p-3">
-                    <div class="chart">
-                        <canvas id="chart-products-per-category" class="chart-canvas" height="170"></canvas>
-                    </div>
-                </div>
-            </div>
+    {{-- Produk per Kategori --}}
+    <div class="card my-4">
+        <div class="card-header pb-0">
+            <h6 class="mb-1">Produk per Kategori</h6>
+            <p class="text-sm text-muted mb-0">
+                Menampilkan jumlah produk di setiap kategori.
+            </p>
         </div>
-
-        {{-- Chart 2: Harga Produk (Nama Barang + Kategori) --}}
-        <div class="col-lg-6 mb-4">
-            <div class="card z-index-2">
-                <div class="card-header p-3 pb-0">
-                    <h6>Harga Produk</h6>
-                    <p class="text-sm mb-0">
-                        Menampilkan harga beberapa produk beserta kategorinya.
-                    </p>
-                </div>
-                <div class="card-body p-3">
-                    <div class="chart">
-                        <canvas id="chart-product-prices" class="chart-canvas" height="170"></canvas>
-                    </div>
-                </div>
+        <div class="card-body">
+            <div style="min-height:260px;">
+                <canvas id="chart-product-category"></canvas>
             </div>
         </div>
     </div>
 
+    {{-- Harga Produk --}}
+    <div class="card my-4">
+        <div class="card-header pb-0">
+            <h6 class="mb-1">Harga Produk</h6>
+            <p class="text-sm text-muted mb-0">
+                Menampilkan harga beberapa produk beserta kategorinya.
+            </p>
+        </div>
+        <div class="card-body">
+            <div style="min-height:260px;">
+                <canvas id="chart-product-prices"></canvas>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
     <script>
-        // Data dari Laravel (PHP) -> JavaScript
-        const categoriesData = @json($categorySummary);
-        const productsData = @json($productsForChart);
+        document.addEventListener('DOMContentLoaded', function() {
+            // ---------- DATA DARI PHP ----------
+            const categoryLabels = @json($categorySummary->pluck('name'));
+            const categoryData = @json($categorySummary->pluck('products_count'));
 
-        // --- Chart 1: Produk per Kategori ---
-        const ctxCategory = document.getElementById('chart-products-per-category').getContext('2d');
+            const priceLabels = @json($productsForChart->pluck('name'));
+            const priceData = @json($productsForChart->pluck('price'));
+            const priceCategories = @json($productsForChart->pluck('category.name'));
 
-        const categoryLabels = categoriesData.map(cat => cat.name);
-        const categoryCounts = categoriesData.map(cat => cat.products_count);
+            // ---------- PALET WARNA KATEGORI ----------
+            const categoryPalette = [
+                'rgba(91, 155, 213, 0.85)', // biru
+                'rgba(237, 125, 49, 0.85)', // oranye
+                'rgba(112, 173, 71, 0.85)', // hijau
+                'rgba(255, 192, 0, 0.85)', // kuning
+                'rgba(192, 80, 77, 0.85)', // merah
+                'rgba(128, 100, 162, 0.85)', // ungu
+            ];
+            const categoryBg = categoryLabels.map((_, i) => categoryPalette[i % categoryPalette.length]);
+            const categoryBorder = categoryBg.map(c => c.replace('0.85', '1'));
 
-        new Chart(ctxCategory, {
-            type: 'bar',
-            data: {
-                labels: categoryLabels,
-                datasets: [{
-                    label: 'Jumlah Produk',
-                    data: categoryCounts,
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0
-                        }
-                    }
-                }
-            }
-        });
+            // ---------- CHART PRODUK PER KATEGORI (BAR) ----------
+            const catCanvas = document.getElementById('chart-product-category');
+            if (catCanvas && categoryLabels.length) {
+                const ctxCat = catCanvas.getContext('2d');
 
-        // --- Chart 2: Harga Produk (Nama Barang + Kategori) ---
-        const ctxProduct = document.getElementById('chart-product-prices').getContext('2d');
-
-        const productLabels = productsData.map(p => {
-            const catName = p.category ? p.category.name : '-';
-            return `${p.name} (${catName})`;
-        });
-
-        const productPrices = productsData.map(p => p.price);
-
-        new Chart(ctxProduct, {
-            type: 'line',
-            data: {
-                labels: productLabels,
-                datasets: [{
-                    label: 'Harga Produk',
-                    data: productPrices,
-                    borderWidth: 3,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        display: false
+                new Chart(ctxCat, {
+                    type: 'bar',
+                    data: {
+                        labels: categoryLabels,
+                        datasets: [{
+                            label: 'Jumlah Produk',
+                            data: categoryData,
+                            backgroundColor: categoryBg,
+                            borderColor: categoryBorder,
+                            borderWidth: 1,
+                            borderRadius: 10,
+                            maxBarThickness: 40,
+                            hoverBackgroundColor: categoryBorder,
+                        }]
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const value = context.parsed.y || 0;
-                                return 'Rp ' + value.toLocaleString('id-ID');
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: '#111827',
+                                titleColor: '#ffffff',
+                                bodyColor: '#e5e7eb',
+                                padding: 10,
+                                cornerRadius: 8
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: '#6b7280',
+                                    font: {
+                                        size: 11
+                                    }
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: '#9ca3af',
+                                    stepSize: 2
+                                },
+                                grid: {
+                                    color: 'rgba(148, 163, 184, 0.15)'
+                                }
                             }
                         }
                     }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
+                });
+            }
+
+            // ---------- WARNA TITIK UNTUK CHART HARGA ----------
+            const categoryColorMap = {
+                'Aksesoris Komputer': '#6366f1', // indigo
+                'Elektronik': '#0ea5e9', // sky
+                'Perlengkapan Kantor': '#22c55e', // green
+                'Alat Tulis Kantor': '#f97316', // orange
+                'Kendaraan Operasional': '#e11d48', // rose
+                'default': '#a855f7', // purple
+            };
+            const pricePointColors = priceCategories.map(cat => categoryColorMap[cat] || categoryColorMap.default);
+
+            // ---------- CHART HARGA PRODUK (LINE) ----------
+            const priceCanvas = document.getElementById('chart-product-prices');
+            if (priceCanvas && priceLabels.length) {
+                const ctxPrice = priceCanvas.getContext('2d');
+
+                new Chart(ctxPrice, {
+                    type: 'line',
+                    data: {
+                        labels: priceLabels,
+                        datasets: [{
+                            label: 'Harga (Rp)',
+                            data: priceData,
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                            borderWidth: 2,
+                            tension: 0.35,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: pricePointColors,
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                        }]
                     },
-                    x: {
-                        ticks: {
-                            maxRotation: 60,
-                            minRotation: 45
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: {
+                                    color: '#4b5563'
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#111827',
+                                titleColor: '#ffffff',
+                                bodyColor: '#e5e7eb',
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.parsed.y || 0;
+                                        return ' Rp ' + value.toLocaleString('id-ID');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    color: '#6b7280',
+                                    maxRotation: 60,
+                                    minRotation: 45,
+                                    font: {
+                                        size: 10
+                                    }
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: '#9ca3af',
+                                    callback: value => value.toLocaleString('id-ID')
+                                },
+                                grid: {
+                                    color: 'rgba(148, 163, 184, 0.15)'
+                                }
+                            }
                         }
                     }
-                }
+                });
             }
         });
     </script>

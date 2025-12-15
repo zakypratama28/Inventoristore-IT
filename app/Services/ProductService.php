@@ -32,15 +32,30 @@ class ProductService
         $sortBy  = $filters['sort_by'] ?? 'name';
         $sortDir = $filters['sort_dir'] ?? 'asc';
 
-        if (!in_array($sortBy, ['name', 'price'])) {
-            $sortBy = 'name';
-        }
-
         if (!in_array($sortDir, ['asc', 'desc'])) {
             $sortDir = 'asc';
         }
 
-        $query->orderBy($sortBy, $sortDir);
+        switch ($sortBy) {
+            case 'price':
+                // urutkan berdasarkan kolom price produk
+                $query->orderBy('price', $sortDir);
+                break;
+
+            case 'category':
+                // urutkan berdasarkan nama kategori (tabel categories)
+                $query->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+                    ->select('products.*')
+                    ->orderBy('categories.name', $sortDir);
+                break;
+
+            case 'name':
+            default:
+                // default: urutkan berdasarkan nama produk
+                $query->orderBy('name', $sortDir);
+                break;
+        }
+
         return $query->paginate($perPage)->appends($filters);
     }
 

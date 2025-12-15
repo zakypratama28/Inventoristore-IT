@@ -20,14 +20,13 @@ class ProductController extends Controller
 
     public function index(ProductFilterRequest $request)
     {
-        $filters  = $request->filters();
-        $products = $this->productService->search($filters, 20);
+        $filters    = $request->validated();
+        $products   = $this->productService->search($filters, 20);
+        $categories = Category::orderBy('name')->get();
 
-        return view('products.list', [
-            'products' => $products,
-            'filters'  => $filters,
-        ]);
+        return view('products.list', compact('products', 'filters', 'categories'));
     }
+
 
     public function create()
     {
