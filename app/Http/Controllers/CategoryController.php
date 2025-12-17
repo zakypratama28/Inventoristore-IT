@@ -28,4 +28,32 @@ class CategoryController extends Controller
             ->route('categories.index')
             ->with('success', 'Kategori baru berhasil ditambahkan.');
     }
+
+    public function update(Request $request, Category $category)
+    {
+        $data = $request->validate([
+            'name'        => ['required', 'string', 'max:100', 'unique:categories,name,' . $category->id],
+            'description' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $category->update($data);
+
+        return redirect()
+            ->route('categories.index')
+            ->with('success', 'Kategori berhasil diperbarui.');
+    }
+
+    public function destroy(Category $category)
+    {
+        // Optional: Check if category is used by products
+        if ($category->products()->count() > 0) {
+            return back()->with('error', 'Kategori tidak dapat dihapus karena masih digunakan oleh produk.');
+        }
+
+        $category->delete();
+
+        return redirect()
+            ->route('categories.index')
+            ->with('success', 'Kategori berhasil dihapus.');
+    }
 }

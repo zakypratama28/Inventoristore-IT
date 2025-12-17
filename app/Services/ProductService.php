@@ -71,16 +71,31 @@ class ProductService
 
     public function create(array $data): Product
     {
+        if (isset($data['image']) && $data['image'] instanceof \Illuminate\Http\UploadedFile) {
+            $data['image_path'] = $data['image']->store('products', 'public');
+            unset($data['image']);
+        }
+
         return Product::create($data);
     }
 
     public function update(Product $product, array $data): Product
     {
+        if (isset($data['image']) && $data['image'] instanceof \Illuminate\Http\UploadedFile) {
+            // Delete old image if exists
+            if ($product->image_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($product->image_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($product->image_path);
+            }
+            $data['image_path'] = $data['image']->store('products', 'public');
+            unset($data['image']);
+        }
+
         $product->update([
             'name'        => $data['name'],
             'description' => $data['description'] ?? null,
             'price'       => $data['price'],
             'category_id' => $data['category_id'] ?? null,
+            'image_path'  => $data['image_path'] ?? $product->image_path,
         ]);
 
         return $product;

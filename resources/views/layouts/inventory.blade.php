@@ -4,7 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard Barang')</title>
+    <title>@yield('title', 'Admin Dashboard')</title>
+
+    {{-- Fonts --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     {{-- Bootstrap 5 --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -13,57 +18,82 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
+        :root {
+            --font-main: 'Outfit', sans-serif;
+            --color-primary: #0d6efd;
+            --color-primary-dark: #0a58ca;
+            --color-secondary: #64748b;
+            --sidebar-width: 280px;
+        }
+
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background-color: #f3f4f6;
+            font-family: var(--font-main);
+            background-color: #f1f5f9;
+            color: #334155;
         }
 
         /* ===== SIDEBAR ===== */
         .sidebar-wrapper {
-            width: 260px;
+            width: var(--sidebar-width);
             min-height: 100vh;
             background: #ffffff;
-            border-right: 1px solid #e5e7eb;
+            border-right: 1px solid #e2e8f0;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 1000;
         }
 
         .brand-gradient {
-            background: linear-gradient(135deg, #6366f1, #ec4899);
-            border-radius: 1.2rem;
-            padding: 0.75rem 1rem;
+            background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+            border-radius: 1rem;
+            padding: 1rem;
             color: #fff;
+            box-shadow: 0 4px 6px -1px rgba(13, 110, 253, 0.2);
         }
 
         .sidebar-menu-title {
-            font-size: .72rem;
-            font-weight: 600;
-            letter-spacing: .08em;
-            color: #9ca3af;
-            margin-bottom: .35rem;
-            margin-top: 1.2rem;
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: .05em;
+            color: #94a3b8;
+            margin-bottom: .5rem;
+            margin-top: 1.5rem;
+            padding-left: 1rem;
+            text-transform: uppercase;
         }
 
         .nav-inventory .nav-link {
-            font-size: .9rem;
-            color: #4b5563;
-            border-radius: .75rem;
-            padding: .55rem .9rem;
+            font-size: .95rem;
+            color: #64748b;
+            border-radius: .5rem;
+            padding: .75rem 1rem;
             display: flex;
             align-items: center;
-            gap: .55rem;
+            gap: .75rem;
+            margin-bottom: .25rem;
+            font-weight: 500;
+            transition: all 0.2s;
         }
 
         .nav-inventory .nav-link i {
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
 
         .nav-inventory .nav-link.active {
-            background: linear-gradient(135deg, #6366f1, #ec4899);
-            color: #ffffff;
-            box-shadow: 0 10px 15px rgba(99, 102, 241, .3);
+            background-color: #eff6ff;
+            color: var(--color-primary);
+            font-weight: 600;
         }
 
         .nav-inventory .nav-link.active i {
-            color: #ffffff;
+            color: var(--color-primary);
+        }
+
+        .nav-inventory .nav-link:hover:not(.active) {
+            background-color: #f8fafc;
+            color: var(--color-primary);
         }
 
         .nav-inventory .nav-link:hover:not(.active) {
@@ -183,8 +213,8 @@
                         <i class="bi bi-box-seam fs-4"></i>
                     </div>
                     <div>
-                        <div class="fw-semibold small text-uppercase">PERSEDIAAN</div>
-                        <div class="small text-white-50">Gudang Barang</div>
+                        <div class="fw-bold small text-uppercase ls-1">InventoriStore</div>
+                        <div class="small text-white-50" style="font-size: 0.8rem;">Admin Panel</div>
                     </div>
                 </div>
             </div>
@@ -195,7 +225,7 @@
                 <div class="sidebar-menu-title">MAIN</div>
                 <a href="{{ route('home') }}" class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
                     <i class="bi bi-speedometer2"></i>
-                    <span>Dashboard</span>
+                    <span>Menu Utama</span>
                 </a>
 
                 <div class="sidebar-menu-title">MASTER</div>
@@ -209,15 +239,44 @@
                     <i class="bi bi-tags"></i>
                     <span>Kategori</span>
                 </a>
+
+                <div class="sidebar-menu-title">TRANSAKSI</div>
+                <a href="{{ route('admin.orders.index') }}"
+                    class="nav-link {{ request()->routeIs('admin.orders*') ? 'active' : '' }}">
+                    <i class="bi bi-cart-check"></i>
+                    <span>Pesanan</span>
+                </a>
+
+                @if (auth()->user()->role === 'admin')
+                    <a href="{{ route('admin.customers.index') }}"
+                        class="nav-link {{ request()->routeIs('admin.customers*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i>
+                        <span>Pelanggan</span>
+                    </a>
+
+                    <div class="sidebar-menu-title">LAPORAN</div>
+                    <a href="{{ route('admin.reports.index') }}"
+                        class="nav-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
+                        <i class="bi bi-file-earmark-bar-graph"></i>
+                        <span>Penjualan</span>
+                    </a>
+                @endif
+
             </nav>
 
-            <div class="mt-auto small text-muted pt-3">
-                <span class="d-block">© {{ date('Y') }} Persediaan Barang</span>
+            <div class="mt-auto small text-muted pt-3 border-top pb-3">
+                <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                    @csrf
+                    <button type="submit" class="nav-link border-0 bg-transparent text-danger w-100 text-start">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
             </div>
         </aside>
 
         {{-- MAIN CONTENT AREA --}}
-        <div class="flex-grow-1 d-flex flex-column">
+        <div class="flex-grow-1 d-flex flex-column" style="margin-left: var(--sidebar-width);">
 
             {{-- TOPBAR --}}
             <header class="topbar d-flex align-items-center justify-content-between px-4">

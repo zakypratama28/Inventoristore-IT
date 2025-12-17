@@ -47,6 +47,7 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'price'       => 'required|numeric|min:0',
             'category_id' => 'nullable|exists:categories,id',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $this->productService->create($validated);
@@ -68,10 +69,17 @@ class ProductController extends Controller
         ]);
     }
 
-    public function update(UpdateProductRequest $request, $id)
+    public function update(Request $request, $id) // Changed from UpdateProductRequest to Request for simplicity or update the Request class if preferred
     {
         $product   = $this->productService->findById($id);
-        $validated = $request->validated();   // sudah termasuk category_id
+        
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price'       => 'required|numeric|min:0',
+            'category_id' => 'nullable|exists:categories,id',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
 
         $this->productService->update($product, $validated);
 
