@@ -163,10 +163,19 @@
                             </div>
                         </div>
                         <div>
-                            <span class="text-uppercase text-xs fw-bold text-muted">Alamat Tujuan</span>
-                            <p class="mb-0 text-sm fw-medium text-dark mt-1 lh-sm">
-                                {{ $order->shipping_address }}
-                            </p>
+                            <span class="text-uppercase text-xs fw-bold text-muted d-block">Informasi Penerima</span>
+                            <div class="mt-2 text-dark">
+                                <p class="mb-1 fw-bold">{{ $order->shipping_name ?? $order->user->name }}</p>
+                                <p class="mb-2 text-sm text-secondary small"><i class="bi bi-telephone me-1"></i>{{ $order->shipping_phone ?? '-' }}</p>
+                                
+                                <span class="text-uppercase text-xs fw-bold text-muted d-block mt-3">Alamat Tujuan</span>
+                                <p class="mb-0 text-sm fw-medium mt-1 lh-sm">
+                                    {{ $order->shipping_address }}<br>
+                                    @if($order->shipping_city)
+                                        <small>{{ $order->shipping_city }}, {{ $order->shipping_province }} {{ $order->shipping_postal_code }}</small>
+                                    @endif
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -219,11 +228,13 @@
     left: 24px; /* Center with icon width (48px / 2) */
     width: 2px;
     background: #e9ecef;
+    z-index: 0;
 }
 .timeline-item {
     position: relative;
-    padding-left: 64px; /* Space for icon + gap */
+    padding-left: 70px; /* Space for icon + gap */
     padding-bottom: 2rem;
+    min-height: 60px;
 }
 .timeline-item:last-child {
     padding-bottom: 0;
@@ -239,7 +250,19 @@
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
-    z-index: 1;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.timeline-content {
+    background: transparent;
+}
+.timeline-content h6 {
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+.timeline-content p {
+    font-size: 0.85rem;
+    line-height: 1.4;
 }
 </style>
 @endpush

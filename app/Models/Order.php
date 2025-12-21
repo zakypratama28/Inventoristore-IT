@@ -14,7 +14,12 @@ class Order extends Model
         'subtotal',
         'shipping_cost',
         'total',
+        'shipping_name',
+        'shipping_phone',
         'shipping_address',
+        'shipping_city',
+        'shipping_postal_code',
+        'shipping_province',
         'payment_method',
         'status',
     ];

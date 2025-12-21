@@ -24,6 +24,7 @@
             --color-primary-dark: #0a58ca;
             --color-secondary: #64748b;
             --sidebar-width: 280px;
+            --sidebar-width-collapsed: 80px;
         }
 
         body {
@@ -43,6 +44,42 @@
             bottom: 0;
             left: 0;
             z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+        
+        /* Collapsed Sidebar */
+        .sidebar-wrapper.collapsed {
+            width: var(--sidebar-width-collapsed);
+        }
+
+        /* Adjust main content when sidebar is collapsed */
+        .main-content-wrapper {
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s ease;
+        }
+        .main-content-wrapper.expanded {
+            margin-left: var(--sidebar-width-collapsed) !important;
+        }
+
+        /* Hide elements in collapsed state */
+        .sidebar-wrapper.collapsed .sidebar-text,
+        .sidebar-wrapper.collapsed .sidebar-menu-title {
+            display: none;
+        }
+        
+        /* Center icons in collapsed state */
+        .sidebar-wrapper.collapsed .nav-link {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        .sidebar-wrapper.collapsed .brand-gradient {
+            padding: 0.5rem;
+            justify-content: center;
+        }
+        .sidebar-wrapper.collapsed .brand-gradient .bg-white {
+            margin: 0 !important;
         }
 
         .brand-gradient {
@@ -51,6 +88,7 @@
             padding: 1rem;
             color: #fff;
             box-shadow: 0 4px 6px -1px rgba(13, 110, 253, 0.2);
+            white-space: nowrap; /* Prevent text wrap */
         }
 
         .sidebar-menu-title {
@@ -62,6 +100,7 @@
             margin-top: 1.5rem;
             padding-left: 1rem;
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         .nav-inventory .nav-link {
@@ -75,10 +114,13 @@
             margin-bottom: .25rem;
             font-weight: 500;
             transition: all 0.2s;
+            white-space: nowrap;
         }
 
         .nav-inventory .nav-link i {
             font-size: 1.1rem;
+            min-width: 1.5rem; /* Ensure icon doesn't shift */
+            text-align: center;
         }
 
         .nav-inventory .nav-link.active {
@@ -96,11 +138,6 @@
             color: var(--color-primary);
         }
 
-        .nav-inventory .nav-link:hover:not(.active) {
-            background-color: #f3f4ff;
-            color: #4338ca;
-        }
-
         /* ===== TOPBAR ===== */
         .topbar {
             height: 64px;
@@ -109,8 +146,6 @@
         }
 
         /* ===== KOMPONEN KHUSUS LIST PRODUK ===== */
-
-        /* Card header ungu ala Material Dashboard */
         .bg-gradient-primary {
             background: linear-gradient(135deg, #4f46e5, #ec4899);
         }
@@ -123,7 +158,6 @@
             border-radius: 1rem;
         }
 
-        /* Chip info filter */
         .filter-chip {
             display: inline-flex;
             align-items: center;
@@ -135,7 +169,6 @@
             font-weight: 500;
         }
 
-        /* Tabel modern */
         .table-modern thead tr th {
             font-size: .7rem;
             letter-spacing: .08em;
@@ -205,15 +238,15 @@
     <div class="d-flex">
 
         {{-- SIDEBAR --}}
-        <aside class="sidebar-wrapper d-flex flex-column p-3">
+        <aside class="sidebar-wrapper d-flex flex-column p-3" id="sidebar">
             {{-- Brand --}}
             <div class="mb-4">
                 <div class="brand-gradient d-flex align-items-center gap-3">
                     <div class="d-flex align-items-center justify-content-center bg-white bg-opacity-20 rounded-3 p-2">
                         <i class="bi bi-box-seam fs-4"></i>
                     </div>
-                    <div>
-                        <div class="fw-bold small text-uppercase ls-1">InventoriStore</div>
+                    <div class="sidebar-text">
+                        <div class="fw-bold small text-uppercase ls-1">IGG Store</div>
                         <div class="small text-white-50" style="font-size: 0.8rem;">Admin Panel</div>
                     </div>
                 </div>
@@ -223,42 +256,50 @@
             <nav class="nav flex-column nav-inventory">
 
                 <div class="sidebar-menu-title">MAIN</div>
-                <a href="{{ route('home') }}" class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
-                    <i class="bi bi-speedometer2"></i>
-                    <span>Menu Utama</span>
+                
+                {{-- Overview Link (Admin Dashboard) --}}
+                <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span class="sidebar-text">Overview</span>
+                </a>
+
+                {{-- Link to Frontend --}}
+                <a href="{{ route('home') }}" class="nav-link">
+                    <i class="bi bi-shop"></i>
+                    <span class="sidebar-text">Lihat Toko</span>
                 </a>
 
                 <div class="sidebar-menu-title">MASTER</div>
                 <a href="{{ route('products') }}"
                     class="nav-link {{ request()->routeIs('products*') ? 'active' : '' }}">
                     <i class="bi bi-box"></i>
-                    <span>Barang</span>
+                    <span class="sidebar-text">Barang</span>
                 </a>
                 <a href="{{ route('categories.index') }}"
                     class="nav-link {{ request()->routeIs('categories.*') ? 'active' : '' }}">
                     <i class="bi bi-tags"></i>
-                    <span>Kategori</span>
+                    <span class="sidebar-text">Kategori</span>
                 </a>
 
                 <div class="sidebar-menu-title">TRANSAKSI</div>
                 <a href="{{ route('admin.orders.index') }}"
                     class="nav-link {{ request()->routeIs('admin.orders*') ? 'active' : '' }}">
                     <i class="bi bi-cart-check"></i>
-                    <span>Pesanan</span>
+                    <span class="sidebar-text">Pesanan</span>
                 </a>
 
                 @if (auth()->user()->role === 'admin')
                     <a href="{{ route('admin.customers.index') }}"
                         class="nav-link {{ request()->routeIs('admin.customers*') ? 'active' : '' }}">
                         <i class="bi bi-people"></i>
-                        <span>Pelanggan</span>
+                        <span class="sidebar-text">Pelanggan</span>
                     </a>
 
                     <div class="sidebar-menu-title">LAPORAN</div>
                     <a href="{{ route('admin.reports.index') }}"
                         class="nav-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
                         <i class="bi bi-file-earmark-bar-graph"></i>
-                        <span>Penjualan</span>
+                        <span class="sidebar-text">Penjualan</span>
                     </a>
                 @endif
 
@@ -267,24 +308,31 @@
             <div class="mt-auto small text-muted pt-3 border-top pb-3">
                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                     @csrf
-                    <button type="submit" class="nav-link border-0 bg-transparent text-danger w-100 text-start">
+                    <button type="submit" class="nav-link border-0 bg-transparent text-danger w-100 text-start" title="Logout">
                         <i class="bi bi-box-arrow-right"></i>
-                        <span>Logout</span>
+                        <span class="sidebar-text">Logout</span>
                     </button>
                 </form>
             </div>
         </aside>
 
         {{-- MAIN CONTENT AREA --}}
-        <div class="flex-grow-1 d-flex flex-column" style="margin-left: var(--sidebar-width);">
+        <div class="flex-grow-1 d-flex flex-column main-content-wrapper" id="mainContent">
 
             {{-- TOPBAR --}}
             <header class="topbar d-flex align-items-center justify-content-between px-4">
-                <div class="fw-semibold text-muted">
-                    @yield('page-title', 'Dashboard Barang')
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-light btn-sm border-0 shadow-sm rounded-circle d-flex align-items-center justify-content-center" 
+                            style="width: 32px; height: 32px;"
+                            onclick="toggleSidebar()">
+                        <i class="bi bi-list fs-5"></i>
+                    </button>
+                    <div class="fw-semibold text-muted">
+                        @yield('page-title', 'Dashboard Barang')
+                    </div>
                 </div>
+                
                 <div class="d-flex align-items-center gap-2">
-                    {{-- diisi dari tiap halaman, misalnya tombol "Kembali ke Dashboard" --}}
                     @yield('page-actions')
                 </div>
             </header>
@@ -300,6 +348,15 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+    </script>
     @stack('scripts')
 </body>
 

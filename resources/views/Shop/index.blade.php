@@ -9,9 +9,9 @@
                     <span class="badge bg-white text-primary mb-3 px-3 py-2 rounded-pill fw-bold shadow-sm">
                         New Collection 2025
                     </span>
-                    <h1 class="display-3 fw-bold mb-4">Temukan Gadget Impian Anda</h1>
+                    <h1 class="display-2 fw-bold mb-3">Temukan Perangkat Gaming & Gadget Anda</h1>
                     <p class="lead mb-5 opacity-75">
-                        Koleksi lengkap perangkat elektronik terbaru dengan harga terbaik dan garansi resmi.
+                        Koleksi lengkap kebutuhan gaming & gadget terbaru dengan harga terbaik terpercaya.
                         Tingkatkan produktivitas Anda sekarang.
                     </p>
                     <div class="d-flex justify-content-center gap-3">
@@ -64,15 +64,15 @@
                     </h4>
                     <div class="d-flex align-items-center gap-2">
                         <span class="text-muted small">Urutkan:</span>
-                        <select class="form-select form-select-sm border-0 bg-light rounded-pill" style="width: auto;" 
-                                onchange="window.location.href = this.value">
-                            <option value="{{ request()->fullUrlWithQuery(['sort' => 'terbaru']) }}" 
+                        <select class="form-select form-select-sm border-0 bg-light rounded-pill" style="width: auto;"
+                            onchange="window.location.href = this.value">
+                            <option value="{{ request()->fullUrlWithQuery(['sort' => 'terbaru']) }}"
                                 {{ request('sort') == 'terbaru' || !request('sort') ? 'selected' : '' }}>Terbaru</option>
-                            <option value="{{ request()->fullUrlWithQuery(['sort' => 'terlaris']) }}" 
+                            <option value="{{ request()->fullUrlWithQuery(['sort' => 'terlaris']) }}"
                                 {{ request('sort') == 'terlaris' ? 'selected' : '' }}>Terlaris</option>
-                            <option value="{{ request()->fullUrlWithQuery(['sort' => 'harga_rendah']) }}" 
+                            <option value="{{ request()->fullUrlWithQuery(['sort' => 'harga_rendah']) }}"
                                 {{ request('sort') == 'harga_rendah' ? 'selected' : '' }}>Harga Terendah</option>
-                            <option value="{{ request()->fullUrlWithQuery(['sort' => 'harga_tinggi']) }}" 
+                            <option value="{{ request()->fullUrlWithQuery(['sort' => 'harga_tinggi']) }}"
                                 {{ request('sort') == 'harga_tinggi' ? 'selected' : '' }}>Harga Tertinggi</option>
                         </select>
                     </div>
@@ -81,12 +81,17 @@
                 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
                     @forelse($products as $product)
                         <div class="col">
-                            <div class="card-product d-flex flex-column h-100">
-                                <div class="img-wrapper">
-                                    {{-- Placeholder image logic handled elegantly --}}
-                                    <img src="{{ Str::startsWith($product->image_url, 'http') ? $product->image_url : asset('storage/' . $product->image_url) }}"
-                                        alt="{{ $product->name }}"
-                                        onerror="this.src='https://placehold.co/400x300/f1f5f9/64748b?text=No+Image';">
+                            <div class="card-product d-flex flex-column h-100 position-relative group">
+                                <div class="img-wrapper position-relative overflow-hidden">
+                                    {{-- Click triggers modal --}}
+                                    <a href="javascript:void(0)"
+                                        onclick="showProductModal({{ json_encode($product) }}, '{{ Str::startsWith($product->image_url, 'http') ? $product->image_url : asset('storage/' . $product->image_url) }}', '{{ $product->category->name ?? '' }}')"
+                                        class="d-block w-100 h-100">
+                                        <img src="{{ Str::startsWith($product->image_url, 'http') ? $product->image_url : asset('storage/' . $product->image_url) }}"
+                                            alt="{{ $product->name }}"
+                                            class="w-100 h-100 object-fit-cover transition-transform"
+                                            onerror="this.src='https://placehold.co/400x300/f1f5f9/64748b?text=No+Image';">
+                                    </a>
 
                                     @if ($product->category)
                                         <span class="category-badge shadow-sm">
@@ -96,24 +101,25 @@
                                 </div>
 
                                 <div class="card-body d-flex flex-column p-4">
-                                    <h6 class="card-title fw-bold text-dark mb-1 text-truncate">{{ $product->name }}</h6>
+                                    <h6 class="card-title fw-bold text-dark mb-1 text-truncate">
+                                        <a href="javascript:void(0)"
+                                            onclick="showProductModal({{ json_encode($product) }}, '{{ Str::startsWith($product->image_url, 'http') ? $product->image_url : asset('storage/' . $product->image_url) }}', '{{ $product->category->name ?? '' }}')"
+                                            class="text-decoration-none text-dark stretched-link">
+                                            {{ $product->name }}
+                                        </a>
+                                    </h6>
                                     <div class="mb-3">
                                         <span class="h5 fw-bold text-primary">Rp
                                             {{ number_format($product->price, 0, ',', '.') }}</span>
                                     </div>
 
-                                    <p class="card-text text-muted small flex-grow-1 mb-4" style="line-height: 1.6;">
-                                        {{ Str::limit($product->description, 60) }}
-                                    </p>
 
-                                    <form action="{{ route('cart.store') }}" method="POST" class="mt-auto">
-                                        @csrf
-                                        <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                        <button type="submit"
-                                            class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
-                                            <i class="bi bi-bag-plus"></i> Tambah
-                                        </button>
-                                    </form>
+                                    {{-- Standard Add to Cart --}}
+                                    <button type="button"
+                                        onclick="showProductModal({{ json_encode($product) }}, '{{ Str::startsWith($product->image_url, 'http') ? $product->image_url : asset('storage/' . $product->image_url) }}', '{{ $product->category->name ?? '' }}')"
+                                        class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 mt-auto">
+                                        <i class="bi bi-cart-plus"></i> Tambah
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -138,4 +144,121 @@
             </div>
         </div>
     </div>
+
+    {{-- QUICK VIEW MODAL --}}
+    <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg overflow-hidden rounded-4">
+                <div class="position-absolute top-0 end-0 p-3 z-3">
+                    <button type="button" class="btn-close bg-white bg-opacity-50 p-2 rounded-circle shadow-sm"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="row g-0">
+                        {{-- Image Side --}}
+                        <div class="col-md-6 bg-light d-flex align-items-center justify-content-center p-4">
+                            <img id="modalImage" src="" alt="Product" class="img-fluid rounded-3 shadow-sm"
+                                style="max-height: 400px; object-fit: contain;">
+                        </div>
+
+                        {{-- Content Side --}}
+                        <div class="col-md-6 p-4 p-lg-5 d-flex flex-column">
+                            <div class="mb-auto">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span id="modalCategoryBadge"
+                                        class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-medium">
+                                        Category
+                                    </span>
+                                </div>
+                                <h3 id="modalTitle" class="fw-bold mb-2 text-dark lh-sm">Product Name</h3>
+                                <h4 class="text-primary fw-bold mb-4" id="modalPrice">Rp 0</h4>
+
+                                <p id="modalDescription" class="text-muted mb-4 small" style="line-height: 1.7;">
+                                    Description...
+                                </p>
+                            </div>
+
+                            <form action="{{ route('cart.store') }}" method="POST" class="mt-4">
+                                @csrf
+                                <input type="hidden" name="product_id" id="modalInputId">
+
+                                <div class="d-flex align-items-center gap-3 mb-4">
+                                    <div class="input-group input-group-sm w-auto border rounded-pill overflow-hidden">
+                                        <button class="btn btn-light px-3" type="button"
+                                            onclick="decrementQty()">-</button>
+                                        <input type="number" name="quantity" id="modalQty"
+                                            class="form-control text-center border-0 bg-white" value="1"
+                                            min="1" step="1" style="width: 50px;">
+                                        <button class="btn btn-light px-3" type="button"
+                                            onclick="incrementQty()">+</button>
+                                    </div>
+                                    <span class="text-muted small">Stok: <span id="modalStock"
+                                            class="fw-bold text-dark">0</span></span>
+                                </div>
+
+                                <button type="submit"
+                                    class="btn btn-dark w-100 py-3 rounded-pill fw-semibold shadow-sm transition-transform hover-scale">
+                                    Add to cart
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @push('scripts')
+        <script>
+            function showProductModal(product, imageUrl, categoryName) {
+                // Populate Data
+                document.getElementById('modalTitle').textContent = product.name;
+                document.getElementById('modalImage').src = imageUrl;
+                document.getElementById('modalPrice').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(product
+                    .price);
+                document.getElementById('modalDescription').textContent = product.description;
+                document.getElementById('modalCategoryBadge').textContent = categoryName;
+                document.getElementById('modalInputId').value = product.id;
+                document.getElementById('modalStock').textContent = product.stock;
+                document.getElementById('modalQty').max = product.stock;
+                document.getElementById('modalQty').value = 1;
+
+                // Show Modal
+                var myModal = new bootstrap.Modal(document.getElementById('productModal'));
+                myModal.show();
+            }
+
+            function incrementQty() {
+                const input = document.getElementById('modalQty');
+                if (parseInt(input.value) < parseInt(input.max)) {
+                    input.value = parseInt(input.value) + 1;
+                }
+            }
+
+            function decrementQty() {
+                const input = document.getElementById('modalQty');
+                if (parseInt(input.value) > 1) {
+                    input.value = parseInt(input.value) - 1;
+                }
+            }
+        </script>
+        <style>
+            .hover-scale:hover {
+                transform: translateY(-2px);
+            }
+
+            .transition-transform {
+                transition: transform 0.2s;
+            }
+
+            /* Fix modal backdrop acting weird in some bootstrap setups if nested */
+            .modal-backdrop {
+                z-index: 1050;
+            }
+
+            .modal {
+                z-index: 1060;
+            }
+        </style>
+    @endpush
 @endsection

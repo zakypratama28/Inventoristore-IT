@@ -1,6 +1,17 @@
 @props(['type' => 'info', 'message' => ''])
 
-<div class="alert alert-{{ $type }} alert-dismissible fade show" role="alert">
-    {{ $message }}
+@if($message)
+<div class="alert alert-{{ $type }} alert-dismissible fade show d-flex align-items-center" role="alert">
+    @if($type === 'success')
+        <i class="bi bi-check-circle-fill me-2"></i>
+    @elseif($type === 'danger')
+        <i class="bi bi-exclamation-circle-fill me-2"></i>
+    @elseif($type === 'warning')
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    @else
+        <i class="bi bi-info-circle-fill me-2"></i>
+    @endif
+    <div class="flex-grow-1">{{ $message }}</div>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
+@endif

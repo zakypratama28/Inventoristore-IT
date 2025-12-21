@@ -63,10 +63,10 @@ class CartService
 
     public function checkout(
         User $user,
-        string $shippingAddress,
+        array $shippingData,
         PaymentMethod $paymentMethod
     ): Order {
-        return DB::transaction(function () use ($user, $shippingAddress, $paymentMethod) {
+        return DB::transaction(function () use ($user, $shippingData, $paymentMethod) {
             $items = $this->items($user);
             if ($items->isEmpty()) {
                 throw new \RuntimeException('Keranjang belanja kosong.');
@@ -78,14 +78,19 @@ class CartService
 
             // buat order
             $order = Order::create([
-                'user_id'          => $user->id,
-                'code'             => $this->generateOrderCode(),
-                'subtotal'         => $subtotal,
-                'shipping_cost'    => $shipping,
-                'total'            => $total,
-                'shipping_address' => $shippingAddress,
-                'payment_method'   => $paymentMethod,
-                'status'           => 'pending',
+                'user_id'              => $user->id,
+                'code'                 => $this->generateOrderCode(),
+                'subtotal'             => $subtotal,
+                'shipping_cost'        => $shipping,
+                'total'                => $total,
+                'shipping_name'        => $shippingData['shipping_name'] ?? $user->name,
+                'shipping_phone'       => $shippingData['shipping_phone'] ?? $user->phone,
+                'shipping_address'     => $shippingData['shipping_address'],
+                'shipping_city'        => $shippingData['shipping_city'] ?? null,
+                'shipping_postal_code' => $shippingData['shipping_postal_code'] ?? null,
+                'shipping_province'    => $shippingData['shipping_province'] ?? null,
+                'payment_method'       => $paymentMethod,
+                'status'               => 'pending',
             ]);
 
             foreach ($items as $item) {

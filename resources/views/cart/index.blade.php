@@ -120,8 +120,10 @@
                         <span class="fw-medium">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                     </div>
 
-                    <div class="alert alert-success bg-opacity-10 text-success border-0 small mb-3">
-                        <i class="bi bi-check-circle me-1"></i> Ongkos kirim gratis untuk semua pesanan!
+                    <div class="alert alert-success d-flex align-items-center border-0 small mb-3" 
+                         style="background-color: rgba(25, 135, 84, 0.1);">
+                        <i class="bi bi-check-circle-fill me-2" style="font-size: 1rem;"></i> 
+                        <span>Ongkos kirim gratis untuk semua pesanan!</span>
                     </div>
 
                     <hr class="my-4 border-light opacity-50">

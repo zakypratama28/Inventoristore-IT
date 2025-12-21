@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>@yield('title', 'Dashboard') - InventoriStore</title>
+    <title>@yield('title', 'Dashboard') - IGG Store</title>
 
     {{-- Fonts --}}
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900" rel="stylesheet" />

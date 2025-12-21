@@ -13,22 +13,80 @@
                 {{-- Shipping Address --}}
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-header bg-white border-bottom py-3">
-                        <h5 class="fw-bold mb-0">Alamat Pengiriman</h5>
+                        <h5 class="fw-bold mb-0">Informasi Pengiriman</h5>
                     </div>
                     <div class="card-body p-4">
-                        <div class="mb-3">
-                            <label class="form-label fw-medium text-muted small text-uppercase ls-1">Alamat Lengkap</label>
-                            <textarea name="shipping_address" rows="4" 
-                                class="form-control bg-light border-0 rounded-3 @error('shipping_address') is-invalid @enderror"
-                                placeholder="Masukkan nama jalan, nomor rumah, kecamatan, dan kota..."
-                                required>{{ old('shipping_address') }}</textarea>
-                            @error('shipping_address')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="row g-3">
+                            {{-- Name & Phone --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium text-muted small text-uppercase ls-1">Nama Penerima <span class="text-danger">*</span></label>
+                                <input type="text" name="shipping_name" 
+                                    class="form-control bg-light border-0 rounded-3 @error('shipping_name') is-invalid @enderror" 
+                                    value="{{ old('shipping_name', auth()->user()->name) }}" 
+                                    placeholder="Nama Lengkap" required>
+                                @error('shipping_name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium text-muted small text-uppercase ls-1">Nomor HP <span class="text-danger">*</span></label>
+                                <input type="text" name="shipping_phone" 
+                                    class="form-control bg-light border-0 rounded-3 @error('shipping_phone') is-invalid @enderror" 
+                                    value="{{ old('shipping_phone', auth()->user()->phone) }}" 
+                                    placeholder="Contoh: 08123456789" required>
+                                @error('shipping_phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- Detailed Address --}}
+                            <div class="col-12">
+                                <label class="form-label fw-medium text-muted small text-uppercase ls-1">Alamat Lengkap <span class="text-danger">*</span></label>
+                                <textarea name="shipping_address" rows="3" 
+                                    class="form-control bg-light border-0 rounded-3 @error('shipping_address') is-invalid @enderror"
+                                    placeholder="Nama jalan, nomor rumah, RT/RW, Kecamatan..."
+                                    required>{{ old('shipping_address', auth()->user()->address) }}</textarea>
+                                @error('shipping_address')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- City, Province, Postal Code --}}
+                            <div class="col-md-4">
+                                <label class="form-label fw-medium text-muted small text-uppercase ls-1">Kota/Kabupaten <span class="text-danger">*</span></label>
+                                <input type="text" name="shipping_city" 
+                                    class="form-control bg-light border-0 rounded-3 @error('shipping_city') is-invalid @enderror" 
+                                    value="{{ old('shipping_city', auth()->user()->city) }}" 
+                                    placeholder="Pilih Kota" required>
+                                @error('shipping_city')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-medium text-muted small text-uppercase ls-1">Provinsi <span class="text-danger">*</span></label>
+                                <input type="text" name="shipping_province" 
+                                    class="form-control bg-light border-0 rounded-3 @error('shipping_province') is-invalid @enderror" 
+                                    value="{{ old('shipping_province', auth()->user()->province) }}" 
+                                    placeholder="Pilih Provinsi" required>
+                                @error('shipping_province')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-medium text-muted small text-uppercase ls-1">Kode Pos <span class="text-danger">*</span></label>
+                                <input type="text" name="shipping_postal_code" 
+                                    class="form-control bg-light border-0 rounded-3 @error('shipping_postal_code') is-invalid @enderror" 
+                                    value="{{ old('shipping_postal_code', auth()->user()->postal_code) }}" 
+                                    placeholder="Contoh: 12345" required>
+                                @error('shipping_postal_code')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
-                        <div class="alert alert-info border-0 d-flex align-items-center small mb-0">
+
+                        <div class="alert alert-info border-0 d-flex align-items-center small mt-4 mb-0">
                             <i class="bi bi-info-circle me-2 fs-5"></i>
-                            <div>pastikan alamat yang anda masukkan sudah benar untuk memudahkan pengiriman.</div>
+                            <div>Pastikan data pengiriman sudah benar untuk memudahkan kurir mengantar pesanan Anda.</div>
                         </div>
                     </div>
                 </div>

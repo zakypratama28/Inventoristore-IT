@@ -28,7 +28,7 @@ class CheckoutController extends Controller
 
         $order = $this->cartService->checkout(
             $user,
-            $request->shipping_address,
+            $request->validated(),
             PaymentMethod::from($request->payment_method),
         );
 
