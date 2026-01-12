@@ -32,6 +32,13 @@ class CheckoutController extends Controller
             PaymentMethod::from($request->payment_method),
         );
 
+        // Kirim email konfirmasi ke pelanggan
+        try {
+            \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\OrderPlaced($order));
+        } catch (\Exception $e) {
+            // Log error or ignore
+        }
+
         return redirect()
             ->route('orders.show', $order)
             ->with('success', 'Order berhasil dibuat. Silakan lanjutkan proses pembayaran.');

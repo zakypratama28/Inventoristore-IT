@@ -77,11 +77,11 @@
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
                     <div class="avatar-initial rounded-circle bg-primary bg-opacity-10 text-primary fw-bold me-3 px-3 py-2">
-                        {{ substr($order->user->name, 0, 1) }}
+                        {{ $order->user ? substr($order->user->name, 0, 1) : 'G' }}
                     </div>
                     <div>
-                        <h6 class="mb-0 fw-bold">{{ $order->user->name }}</h6>
-                        <small class="text-muted">{{ $order->user->email }}</small>
+                        <h6 class="mb-0 fw-bold">{{ $order->user->name ?? 'Guest' }}</h6>
+                        <small class="text-muted">{{ $order->user->email ?? 'No email' }}</small>
                     </div>
                 </div>
                 <hr class="border-light">
@@ -100,6 +100,24 @@
                     };
                 @endphp
                 <span class="badge bg-{{ $badgeClass }} w-100 py-2">{{ ucfirst($order->status) }}</span>
+
+                <hr class="border-light mt-4">
+                <h6 class="small fw-bold text-uppercase text-muted mb-2">Update Status</h6>
+                <form action="{{ route('admin.orders.update-status', $order->id) }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <div class="mb-3">
+                        <select name="status" class="form-select form-select-sm mb-2">
+                            <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="processing" {{ $order->status == 'processing' ? 'selected' : '' }}>Processing</option>
+                            <option value="shipped" {{ $order->status == 'shipped' ? 'selected' : '' }}>Shipped</option>
+                            <option value="completed" {{ $order->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                            <option value="paid" {{ $order->status == 'paid' ? 'selected' : '' }}>Paid</option>
+                            <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-sm w-100">Simpan Status</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

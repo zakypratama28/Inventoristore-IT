@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Dashboard')</title>
 
     {{-- Fonts --}}
@@ -295,6 +296,25 @@
                         <span class="sidebar-text">Pelanggan</span>
                     </a>
 
+                    <div class="sidebar-menu-title">KONTEN</div>
+                    <a href="{{ route('admin.blog.index') }}"
+                        class="nav-link {{ request()->routeIs('admin.blog*') ? 'active' : '' }}">
+                        <i class="bi bi-newspaper"></i>
+                        <span class="sidebar-text">Blog & Artikel</span>
+                    </a>
+
+                    <a href="{{ route('admin.faq.index') }}"
+                        class="nav-link {{ request()->routeIs('admin.faq*') ? 'active' : '' }}">
+                        <i class="bi bi-question-circle"></i>
+                        <span class="sidebar-text">FAQ</span>
+                    </a>
+
+                    <a href="{{ route('admin.reviews.index') }}"
+                        class="nav-link {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}">
+                        <i class="bi bi-star"></i>
+                        <span class="sidebar-text">Review Produk</span>
+                    </a>
+
                     <div class="sidebar-menu-title">LAPORAN</div>
                     <a href="{{ route('admin.reports.index') }}"
                         class="nav-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
@@ -305,15 +325,7 @@
 
             </nav>
 
-            <div class="mt-auto small text-muted pt-3 border-top pb-3">
-                <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                    @csrf
-                    <button type="submit" class="nav-link border-0 bg-transparent text-danger w-100 text-start" title="Logout">
-                        <i class="bi bi-box-arrow-right"></i>
-                        <span class="sidebar-text">Logout</span>
-                    </button>
-                </form>
-            </div>
+            <!-- Logout removed from here -->
         </aside>
 
         {{-- MAIN CONTENT AREA --}}
@@ -334,6 +346,13 @@
                 
                 <div class="d-flex align-items-center gap-2">
                     @yield('page-actions')
+                    
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline border-start ps-3 ms-2">
+                        @csrf
+                        <button type="submit" class="btn btn-light btn-sm fw-bold text-danger d-flex align-items-center gap-2" title="Logout">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </button>
+                    </form>
                 </div>
             </header>
 

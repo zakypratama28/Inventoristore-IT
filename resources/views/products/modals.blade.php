@@ -21,7 +21,7 @@
                             <label class="form-label fw-medium small text-uppercase">Nama Barang</label>
                             <input type="text" name="name" class="form-control" placeholder="Contoh: Asus ROG Strix" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label fw-medium small text-uppercase">Kategori</label>
                             <select name="category_id" class="form-select">
                                 <option value="">-- Pilih Kategori --</option>
@@ -30,7 +30,11 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label class="form-label fw-medium small text-uppercase">Stok</label>
+                            <input type="number" name="stock" class="form-control" placeholder="0" min="0" required>
+                        </div>
+                        <div class="col-md-4">
                             <label class="form-label fw-medium small text-uppercase">Harga (Rp)</label>
                             <input type="number" name="price" class="form-control" placeholder="0" required>
                         </div>
@@ -72,6 +76,9 @@
                     <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill mb-3">
                         {{ $product->category->name ?? 'Uncategorized' }}
                     </span>
+                    <div class="mb-3">
+                        <span class="text-muted small">Stok: </span> <span class="fw-bold text-dark">{{ $product->stock }} Unit</span>
+                    </div>
                     <h3 class="fw-bold text-primary mb-3">Rp {{ number_format($product->price, 0, ',', '.') }}</h3>
                     <p class="text-muted small px-4">{{ $product->description }}</p>
                 </div>
@@ -109,10 +116,9 @@
                                 <label class="form-label fw-medium small text-uppercase">Nama Barang</label>
                                 <input type="text" name="name" class="form-control" value="{{ $product->name }}" required>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label fw-medium small text-uppercase">Kategori</label>
                                 <select name="category_id" class="form-select">
-                                    <option value="">-- Pilih Kategori --</option>
                                     <option value="">-- Pilih Kategori --</option>
                                     @foreach($categories as $cat)
                                         <option value="{{ $cat->id }}" {{ $product->category_id == $cat->id ? 'selected' : '' }}>
@@ -121,7 +127,11 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <label class="form-label fw-medium small text-uppercase">Stok</label>
+                                <input type="number" name="stock" class="form-control" value="{{ $product->stock }}" min="0" required>
+                            </div>
+                            <div class="col-md-4">
                                 <label class="form-label fw-medium small text-uppercase">Harga (Rp)</label>
                                 <input type="number" name="price" class="form-control" value="{{ $product->price }}" required>
                             </div>

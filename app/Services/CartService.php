@@ -102,6 +102,9 @@ class CartService
                     'quantity'     => $item->quantity,
                     'subtotal'     => $item->subtotal,
                 ]);
+
+                // Decrement stock
+                $item->product->decrement('stock', $item->quantity);
             }
 
             // kosongkan keranjang

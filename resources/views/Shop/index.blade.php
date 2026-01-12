@@ -2,20 +2,21 @@
 
 @section('content')
     {{-- HERO SECTION --}}
-    <section class="hero-section text-center">
-        <div class="container position-relative z-1">
-            <div class="row justify-content-center">
+    <section class="hero-section position-relative d-flex align-items-center text-white" 
+        style="min-height: 600px; background-image: url('{{ asset('material-dashboard/assets/img/Gamingwall.jpg') }}'); background-size: cover; background-position: center;">
+        <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-75"></div>
+        <div class="container position-relative z-2">
+            <div class="row justify-content-center text-center">
                 <div class="col-lg-8">
-                    <span class="badge bg-white text-primary mb-3 px-3 py-2 rounded-pill fw-bold shadow-sm">
+                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary mb-3 px-4 py-2 rounded-pill fw-bold shadow-sm backdrop-blur-sm">
                         New Collection 2025
                     </span>
-                    <h1 class="display-2 fw-bold mb-3">Temukan Perangkat Gaming & Gadget Anda</h1>
-                    <p class="lead mb-5 opacity-75">
+                    <h1 class="display-2 fw-bold mb-3 text-white text-shadow-sm">Temukan Perangkat Gaming & Gadget Anda</h1>
+                    <p class="lead mb-5 text-white opacity-90 text-shadow-sm">
                         Koleksi lengkap kebutuhan gaming & gadget terbaru dengan harga terbaik terpercaya.
-                        Tingkatkan produktivitas Anda sekarang.
                     </p>
                     <div class="d-flex justify-content-center gap-3">
-                        <a href="#products" class="btn btn-light btn-lg px-5 fw-semibold text-primary shadow-sm">Belanja
+                        <a href="#products" class="btn btn-primary btn-lg px-5 fw-semibold shadow-lg rounded-pill hover-scale">Belanja
                             Sekarang</a>
                     </div>
                 </div>
@@ -80,12 +81,21 @@
 
                 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
                     @forelse($products as $product)
+                        @php
+                            $cartQty = 0;
+                            if(auth()->check()) {
+                                $cartQty = \App\Models\CartItem::where('user_id', auth()->id())
+                                            ->where('product_id', $product->id)
+                                            ->sum('quantity');
+                            }
+                            $realStock = $product->stock - $cartQty;
+                            $isOutOfStock = $realStock <= 0;
+                        @endphp
                         <div class="col">
                             <div class="card-product d-flex flex-column h-100 position-relative group">
                                 <div class="img-wrapper position-relative overflow-hidden">
-                                    {{-- Click triggers modal --}}
-                                    <a href="javascript:void(0)"
-                                        onclick="showProductModal({{ json_encode($product) }}, '{{ Str::startsWith($product->image_url, 'http') ? $product->image_url : asset('storage/' . $product->image_url) }}', '{{ $product->category->name ?? '' }}')"
+                                    {{-- Click triggers detail page --}}
+                                    <a href="{{ route('products.show', $product->id) }}"
                                         class="d-block w-100 h-100">
                                         <img src="{{ Str::startsWith($product->image_url, 'http') ? $product->image_url : asset('storage/' . $product->image_url) }}"
                                             alt="{{ $product->name }}"
@@ -98,28 +108,46 @@
                                             {{ $product->category->name }}
                                         </span>
                                     @endif
+
+                                    @if($isOutOfStock)
+                                        <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center z-2">
+                                            <span class="badge bg-danger fs-5 px-4 py-2 shadow">Habis</span>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <div class="card-body d-flex flex-column p-4">
                                     <h6 class="card-title fw-bold text-dark mb-1 text-truncate">
-                                        <a href="javascript:void(0)"
-                                            onclick="showProductModal({{ json_encode($product) }}, '{{ Str::startsWith($product->image_url, 'http') ? $product->image_url : asset('storage/' . $product->image_url) }}', '{{ $product->category->name ?? '' }}')"
-                                            class="text-decoration-none text-dark stretched-link">
+                                        <a href="{{ route('products.show', $product->id) }}"
+                                            class="text-decoration-none text-dark">
                                             {{ $product->name }}
                                         </a>
                                     </h6>
-                                    <div class="mb-3">
-                                        <span class="h5 fw-bold text-primary">Rp
+                                    <div class="mb-3 d-flex justify-content-between align-items-center">
+                                        <span class="h5 fw-bold text-primary mb-0">Rp
                                             {{ number_format($product->price, 0, ',', '.') }}</span>
+                                        <small class="text-muted fw-medium">Stok: {{ $realStock }}</small>
                                     </div>
 
 
-                                    {{-- Standard Add to Cart --}}
-                                    <button type="button"
-                                        onclick="showProductModal({{ json_encode($product) }}, '{{ Str::startsWith($product->image_url, 'http') ? $product->image_url : asset('storage/' . $product->image_url) }}', '{{ $product->category->name ?? '' }}')"
-                                        class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 mt-auto">
-                                        <i class="bi bi-cart-plus"></i> Tambah
-                                    </button>
+                                    {{-- Action Buttons --}}
+                                    <div class="d-flex gap-2">
+                                        <button type="button"
+                                            class="btn btn-primary flex-grow-1 product-modal-trigger"
+                                            data-product-id="{{ $product->id }}"
+                                            data-product-name="{{ $product->name }}"
+                                            data-product-price="{{ $product->price }}"
+                                            data-product-description="{{ $product->description }}"
+                                            data-product-image="{{ Str::startsWith($product->image_url, 'http') ? $product->image_url : asset('storage/' . $product->image_url) }}"
+                                            data-product-category="{{ $product->category->name ?? '' }}"
+                                            data-product-stock="{{ $realStock }}"
+                                            {{ $isOutOfStock ? 'disabled' : '' }}>
+                                            <i class="bi bi-cart-plus"></i> {{ $isOutOfStock ? 'Habis' : 'Tambah' }}
+                                        </button>
+                                        <a href="{{ route('products.show', $product->id) }}" class="btn btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -164,11 +192,14 @@
                         {{-- Content Side --}}
                         <div class="col-md-6 p-4 p-lg-5 d-flex flex-column">
                             <div class="mb-auto">
-                                <div class="d-flex align-items-center gap-2 mb-2">
+                                <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
                                     <span id="modalCategoryBadge"
                                         class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-medium">
                                         Category
                                     </span>
+                                    
+                                    {{-- Wishlist Button --}}
+                                    <div id="modalWishlistContainer"></div>
                                 </div>
                                 <h3 id="modalTitle" class="fw-bold mb-2 text-dark lh-sm">Product Name</h3>
                                 <h4 class="text-primary fw-bold mb-4" id="modalPrice">Rp 0</h4>
@@ -210,7 +241,28 @@
 
     @push('scripts')
         <script>
-            function showProductModal(product, imageUrl, categoryName) {
+            // Event Delegation for Product Modal Triggers
+            document.addEventListener('click', function(e) {
+                const trigger = e.target.closest('.product-modal-trigger');
+                if (!trigger) return;
+                
+                e.preventDefault();
+                
+                // Get product data from data attributes
+                const productData = {
+                    id: trigger.dataset.productId,
+                    name: trigger.dataset.productName,
+                    price: trigger.dataset.productPrice,
+                    description: trigger.dataset.productDescription
+                };
+                const imageUrl = trigger.dataset.productImage;
+                const categoryName = trigger.dataset.productCategory;
+                const realStock = parseInt(trigger.dataset.productStock);
+                
+                showProductModal(productData, imageUrl, categoryName, realStock);
+            });
+            
+            function showProductModal(product, imageUrl, categoryName, realStock) {
                 // Populate Data
                 document.getElementById('modalTitle').textContent = product.name;
                 document.getElementById('modalImage').src = imageUrl;
@@ -219,9 +271,62 @@
                 document.getElementById('modalDescription').textContent = product.description;
                 document.getElementById('modalCategoryBadge').textContent = categoryName;
                 document.getElementById('modalInputId').value = product.id;
-                document.getElementById('modalStock').textContent = product.stock;
-                document.getElementById('modalQty').max = product.stock;
-                document.getElementById('modalQty').value = 1;
+                
+                // Render Wishlist Button
+                const wishlistContainer = document.getElementById('modalWishlistContainer');
+                @auth
+                    wishlistContainer.innerHTML = `
+                        <button type="button" class="btn wishlist-toggle-btn" 
+                                data-product-id="${product.id}" data-in-wishlist="false"
+                                style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid #e0e0e0; background: white;"
+                                title="Tambah ke Wishlist">
+                            <i class="bi bi-heart wishlist-icon" style="font-size: 1.25rem;"></i>
+                        </button>
+                    `;
+                    
+                    fetch(`/wishlist/check/${product.id}`, {
+                        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        const btn = wishlistContainer.querySelector('.wishlist-toggle-btn');
+                        const icon = btn.querySelector('.wishlist-icon');
+                        if (data.inWishlist) {
+                            btn.dataset.inWishlist = 'true';
+                            btn.style.borderColor = '#e91e63'; btn.style.background = 'rgba(233,30,99,0.1)';
+                            icon.classList.remove('bi-heart'); icon.classList.add('bi-heart-fill');
+                            icon.style.color = '#e91e63'; btn.title = 'Hapus dari Wishlist';
+                        }
+                    });
+                @else
+                    wishlistContainer.innerHTML = `
+                        <button type="button" class="btn" 
+                                onclick="alert('Silakan login terlebih dahulu'); window.location.href='{{ route('login') }}';"
+                                style="width: 42px; height: 42px; border-radius: 50%; border: 2px solid #e0e0e0; background: white;">
+                            <i class="bi bi-heart" style="font-size: 1.25rem;"></i>
+                        </button>
+                    `;
+                @endauth
+                
+                // Stock Logic
+                const stockElement = document.getElementById('modalStock');
+                stockElement.textContent = realStock;
+                
+                const qtyInput = document.getElementById('modalQty');
+                const addToCartBtn = document.querySelector('#productModal button[type="submit"]');
+                
+                if (realStock > 0) {
+                    qtyInput.max = realStock;
+                    qtyInput.value = 1;
+                    qtyInput.disabled = false;
+                    addToCartBtn.disabled = false;
+                    addToCartBtn.textContent = 'Add to cart';
+                } else {
+                    qtyInput.value = 0;
+                    qtyInput.disabled = true;
+                    addToCartBtn.disabled = true;
+                    addToCartBtn.textContent = 'Stok Habis';
+                }
 
                 // Show Modal
                 var myModal = new bootstrap.Modal(document.getElementById('productModal'));
@@ -241,6 +346,61 @@
                     input.value = parseInt(input.value) - 1;
                 }
             }
+            
+            // Wishlist Toggle Handler for Modal (Event Delegation)
+            @auth
+            document.addEventListener('click', async function(e) {
+                const btn = e.target.closest('.wishlist-toggle-btn');
+                if (!btn) return;
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const productId = btn.dataset.productId;
+                const isInWishlist = btn.dataset.inWishlist === 'true';
+                const icon = btn.querySelector('.wishlist-icon');
+                
+                try {
+                    let response;
+                    if (isInWishlist) {
+                        response = await fetch(`/wishlist/${productId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json',
+                            }
+                        });
+                    } else {
+                        response = await fetch('/wishlist', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({ product_id: productId })
+                        });
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        btn.dataset.inWishlist = !isInWishlist;
+                        if (isInWishlist) {
+                            btn.style.borderColor = '#e0e0e0'; btn.style.background = 'white';
+                            icon.classList.remove('bi-heart-fill'); icon.classList.add('bi-heart');
+                            icon.style.color = ''; btn.title = 'Tambah ke Wishlist';
+                        } else {
+                            btn.style.borderColor = '#e91e63'; btn.style.background = 'rgba(233,30,99,0.1)';
+                            icon.classList.remove('bi-heart'); icon.classList.add('bi-heart-fill');
+                            icon.style.color = '#e91e63'; btn.title = 'Hapus dari Wishlist';
+                        }
+                    }
+                } catch (error) {
+                    console.error('Wishlist error:', error);
+                }
+            });
+            @endauth
         </script>
         <style>
             .hover-scale:hover {
@@ -258,6 +418,84 @@
 
             .modal {
                 z-index: 1060;
+            }
+
+            /* === PRODUCT CARD LAYOUT FIXES === */
+            .card-product {
+                border: 1px solid #e5e7eb;
+                border-radius: 1rem;
+                background: white;
+                transition: all 0.3s ease;
+                min-height: 480px; /* Ensure consistent minimum height */
+            }
+
+            .card-product:hover {
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                transform: translateY(-5px);
+            }
+
+            /* Fixed aspect ratio for product images */
+            .card-product .img-wrapper {
+                position: relative;
+                width: 100%;
+                padding-top: 75%; /* 4:3 aspect ratio */
+                background: #f8f9fa;
+            }
+
+            .card-product .img-wrapper img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            /* Category badge positioning */
+            .card-product .category-badge {
+                position: absolute;
+                top: 12px;
+                left: 12px;
+                z-index: 1;
+                background: rgba(255, 255, 255, 0.95);
+                color: #4f46e5;
+                padding: 0.375rem 0.875rem;
+                border-radius: 999px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                backdrop-filter: blur(10px);
+            }
+
+            /* Card body consistent spacing */
+            .card-product .card-body {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                min-height: 180px; /* Ensure consistent body height */
+            }
+
+            /* Product title height consistency */
+            .card-product .card-title {
+                height: 2.5em; /* 2 lines max */
+                overflow: hidden;
+                line-height: 1.25;
+            }
+
+            /* Price and stock row fixed height */
+            .card-product .card-body > div:nth-child(2) {
+                height: 2.5rem;
+            }
+
+            /* Push buttons to bottom */
+            .card-product .card-body > div:last-child {
+                margin-top: auto;
+            }
+
+            /* Consistent button heights */
+            .card-product .btn {
+                padding: 0.625rem 1rem;
+                font-size: 0.875rem;
+                font-weight: 500;
             }
         </style>
     @endpush

@@ -48,6 +48,7 @@ class ProductController extends Controller
             'price'       => 'required|numeric|min:0',
             'category_id' => 'nullable|exists:categories,id',
             'image'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'stock'       => 'required|integer|min:0',
         ]);
 
         $this->productService->create($validated);
@@ -79,6 +80,7 @@ class ProductController extends Controller
             'price'       => 'required|numeric|min:0',
             'category_id' => 'nullable|exists:categories,id',
             'image'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'stock'       => 'required|integer|min:0',
         ]);
 
         $this->productService->update($product, $validated);
@@ -100,8 +102,44 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        $product = $this->productService->findById($id);
+        $product = Product::with(['category', 'reviews.user'])
+            ->findOrFail($id);
+        
+        // Calculate rating statistics
+        $totalReviews = $product->reviews->count();
+        $avgRating = $totalReviews > 0 ? round($product->reviews->avg('rating'), 1) : 0;
+        
+        // Rating breakdown (count per star)
+        $ratingBreakdown = [
+            5 => $product->reviews->where('rating', 5)->count(),
+            4 => $product->reviews->where('rating', 4)->count(),
+            3 => $product->reviews->where('rating', 3)->count(),
+            2 => $product->reviews->where('rating', 2)->count(),
+            1 => $product->reviews->where('rating', 1)->count(),
+        ];
+        
+        // Get reviews with pagination
+        $reviews = $product->reviews()
+            ->with('user')
+            ->latest()
+            ->paginate(10);
+        
+        // Calculate cart quantity for stock validation
+        $cartQty = 0;
+        if(auth()->check()) {
+            $cartQty = \App\Models\CartItem::where('user_id', auth()->id())
+                        ->where('product_id', $product->id)
+                        ->sum('quantity');
+        }
+        $realStock = $product->stock - $cartQty;
 
-        return view('products.show', compact('product'));
+        return view('products.show', compact(
+            'product', 
+            'totalReviews', 
+            'avgRating', 
+            'ratingBreakdown',
+            'reviews',
+            'realStock'
+        ));
     }
 }

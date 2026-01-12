@@ -58,6 +58,15 @@
             @enderror
         </div>
 
+        <div class="mb-3">
+            <label for="stock" class="form-label">Stok : </label>
+            <input type="number" class="form-control @error('stock') is-invalid @enderror" id="stock"
+                name="stock" value="{{ old('stock', $product->stock ?? 0) }}" required min="0">
+            @error('stock')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
         <button type="submit" class="btn btn-success">
             {{ $isEdit ? 'Ubah Produk' : 'Simpan Produk' }}
         </button>

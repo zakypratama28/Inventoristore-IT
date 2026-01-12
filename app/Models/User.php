@@ -27,6 +27,10 @@ class User extends Authenticatable
         'city',
         'postal_code',
         'province',
+        'verification_code',
+        'locale',
+        'avatar',
+        'is_active',
     ];
 
     /**
@@ -51,5 +55,51 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class);
+    }
+
+    public function chats()
+    {
+        return $this->hasMany(Chat::class, 'user_id');
+    }
+
+    /**
+     * Get user's default address
+     */
+    public function defaultAddress()
+    {
+        return $this->hasOne(UserAddress::class)->where('is_default', true);
+    }
+
+    /**
+     * Check if product is in user's wishlist
+     */
+    public function hasInWishlist($productId)
+    {
+        return $this->wishlists()->where('product_id', $productId)->exists();
+    }
+
+    /**
+     * Get avatar URL
+     */
+    public function getAvatarUrlAttribute()
+    {
+        return $this->avatar
+            ? asset('storage/' . $this->avatar)
+            : asset('images/default-avatar.png');
     }
 }

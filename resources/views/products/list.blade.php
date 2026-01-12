@@ -63,6 +63,7 @@
                             <tr>
                                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-4">Produk</th>
                                 <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kategori</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Stok</th>
                                 <th class="text-end text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 me-3">Harga</th>
                                 <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Aksi</th>
                             </tr>
@@ -81,6 +82,11 @@
                                 <td class="text-center">
                                     <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">
                                         {{ $product->category->name ?? 'Uncategorized' }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="fw-bold {{ $product->stock <= 5 ? 'text-danger' : 'text-dark' }}">
+                                        {{ $product->stock }} Unit
                                     </span>
                                 </td>
                                 <td class="text-end pe-3">
@@ -107,7 +113,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="4" class="text-center py-5 text-muted">
+                                <td colspan="5" class="text-center py-5 text-muted">
                                     <i class="bi bi-box-seam fs-1 d-block mb-2 opacity-50"></i>
                                     Belum ada data produk.
                                 </td>

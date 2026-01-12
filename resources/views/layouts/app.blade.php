@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>IGG Store - Gadget&Gaming Centre</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('material-dashboard/assets/iconigg.svg') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('material-dashboard/assets/favicon-32x32.png') }}">
@@ -23,143 +24,182 @@
 
     <style>
         :root {
+            /* Common Variables */
             --font-main: 'Outfit', sans-serif;
+            
+            /* Dark Theme (Default) */
+            --color-bg: #0f172a; /* Slate 900 */
+            --color-surface: #1e293b; /* Slate 800 */
+            --color-primary: #0ea5e9; /* Sky 500 - Neon Cyan */
+            --color-primary-dark: #0284c7; /* Sky 600 */
+            --color-secondary: #64748b; /* Slate 500 */
+            --color-text: #f1f5f9; /* Slate 100 */
+            --color-text-muted: #94a3b8; /* Slate 400 */
+            --color-border: #334155; /* Slate 700 */
+            --color-card-hover: #334155;
+            --shadow-glow: 0 0 15px rgba(14, 165, 233, 0.3);
+        }
+
+        /* Light Theme Variable Overrides */
+        [data-theme="light"] {
+            --color-bg: #f8fafc;
+            --color-surface: #ffffff;
             --color-primary: #0d6efd;
-            /* Bootstrap Blue */
             --color-primary-dark: #0a58ca;
             --color-secondary: #6c757d;
-            --color-dark: #212529;
-            --color-light: #f8fafc;
+            --color-text: #212529;
+            --color-text-muted: #6c757d;
+            --color-border: #e2e8f0;
+            --color-card-hover: #ffffff;
+            --shadow-glow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        /* ... unchanged ... */
-
-        /* Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
-            /* Blue to Cyan */
-            color: white;
-            padding: 5rem 0;
-            border-radius: 0 0 50% 50% / 4%;
-            margin-bottom: 3rem;
-            position: relative;
-            overflow: hidden;
+        body {
+            font-family: var(--font-main);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        /* Component Theming */
+        .card, .dropdown-menu, .modal-content {
+            background-color: var(--color-surface);
+            border-color: var(--color-border);
+            color: var(--color-text);
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: rgba(30, 41, 59, 0.95); /* Dark surface with opacity */
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--color-border);
+        }
+        [data-theme="light"] .navbar {
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+
+        .navbar-brand, .nav-link {
+            color: var(--color-text) !important;
+        }
+        
+        .dropdown-item {
+            color: var(--color-text);
+        }
+        .dropdown-item:hover {
+            background-color: var(--color-border);
+            color: var(--color-text);
+        }
+
+        /* Inputs */
+        .form-control, .form-select {
+            background-color: var(--color-bg);
+            border-color: var(--color-border);
+            color: var(--color-text);
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 0.25rem rgba(14, 165, 233, 0.25);
         }
 
         /* Buttons */
         .btn-primary {
             background-color: var(--color-primary);
             border-color: var(--color-primary);
+            color: #fff;
             padding: 0.6rem 1.25rem;
             font-weight: 500;
             border-radius: 0.5rem;
             transition: all 0.3s;
         }
-
         .btn-primary:hover {
             background-color: var(--color-primary-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.4);
+            border-color: var(--color-primary-dark);
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-light {
+            background-color: var(--color-surface);
+            border-color: var(--color-border);
+            color: var(--color-text);
+        }
+        .btn-light:hover {
+            background-color: var(--color-border);
+            color: var(--color-text);
         }
 
-        /* Product Cards */
-        .card-product {
-            border: none;
-            border-radius: 1rem;
-            background: white;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            overflow: hidden;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            height: 100%;
+        /* Text Utilities Override */
+        .text-muted {
+            color: var(--color-text-muted) !important;
+        }
+        .text-dark {
+            color: var(--color-text) !important;
+        }
+        .bg-white {
+            background-color: var(--color-surface) !important;
+        }
+        .bg-light {
+            background-color: var(--color-bg) !important;
         }
 
-        .card-product:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        .card-product .img-wrapper {
+        /* Hero Section Update */
+        .hero-section {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             position: relative;
-            padding-top: 75%;
-            /* 4:3 Aspect Ratio */
+            padding: 5rem 0;
+            border-radius: 0 0 50% 50% / 4%;
+            margin-bottom: 3rem;
             overflow: hidden;
-            background-color: #f1f5f9;
+            border-bottom: 2px solid var(--color-primary);
         }
-
-        .card-product img {
+        /* Tech/Gaming Grid Pattern */
+        .hero-section::after {
+            content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(14, 165, 233, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(14, 165, 233, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.3;
         }
-
-        .card-product:hover img {
-            transform: scale(1.05);
+        [data-theme="light"] .hero-section {
+            background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+            border-bottom: none;
         }
-
-        .category-badge {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(4px);
-            padding: 0.25rem 0.75rem;
-            border-radius: 2rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--color-primary-dark);
+        [data-theme="light"] .hero-section::after {
+            display: none;
         }
 
         /* Footer */
         .footer {
-            background-color: white;
-            border-top: 1px solid #e2e8f0;
+            background-color: var(--color-surface);
+            border-top: 1px solid var(--color-border);
             margin-top: auto;
             padding: 4rem 0 2rem;
         }
-
         .footer h5 {
-            font-weight: 700;
-            color: var(--color-dark);
-            margin-bottom: 1.5rem;
+            color: var(--color-text);
         }
-
         .footer-link {
-            color: #64748b;
-            text-decoration: none;
-            margin-bottom: 0.75rem;
-            display: block;
-            transition: color 0.2s;
+            color: var(--color-text-muted);
         }
-
         .footer-link:hover {
             color: var(--color-primary);
         }
-
-        /* Navbar Glassmorphism */
-        .navbar {
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            z-index: 9999;
-            /* Ensure it stays on top */
-            padding-top: 0.75rem;
-            padding-bottom: 0.75rem;
-        }
     </style>
+
+    <script>
+        // Check local storage or system preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } else {
+            // Default to dark key (no attribute needed as it's default in CSS, 
+            // but we can enforce logic if needed. Here we assume :root is dark)
+        }
+    </script>
 
     @stack('styles')
 </head>
@@ -173,7 +213,7 @@
 
         {{-- Flash message (Conditional render) --}}
         @if (session('success') && !request()->routeIs('home') && !request()->routeIs('cart.index') && !request()->routeIs('orders.show'))
-            <div class="container mt-4">
+            <div class="container mt-5 pt-5">
                 <x-alert type="success" :message="session('success')" />
             </div>
         @endif
@@ -182,43 +222,75 @@
     </main>
 
     {{-- Footer --}}
-    <footer class="footer">
+    <footer class="bg-dark text-white py-5 mt-5">
         <div class="container">
-            {{-- 
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <h5 class="text-primary fw-bold">InventoriStore</h5>
-                    <p class="text-muted">Platform e-commerce terpercaya untuk memenuhi segala kebutuhan Anda dengan kualitas terbaik dan harga terjangkau.</p>
+            <div class="row g-4">
+                {{-- Brand Section --}}
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="fw-bold mb-3">IGGStore</h5>
+                    <p class="text-white-50 mb-0">
+                        Koleksi lengkap kebutuhan gaming & gadget terbaru dengan harga terbaik terpercaya.
+                    </p>
                 </div>
-                <div class="col-lg-2 col-6 mb-4">
-                    <h5>Belanja</h5>
-                    <a href="#" class="footer-link">Semua Produk</a>
-                    <a href="#" class="footer-link">Kategori</a>
-                    <a href="#" class="footer-link">Promo</a>
+
+                {{-- Categories Section --}}
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold text-uppercase mb-3" style="letter-spacing: 1px;">Kategori</h6>
+                    <ul class="list-unstyled">
+                        @php
+                            $footerCategories = \App\Models\Category::orderBy('name')->limit(4)->get();
+                        @endphp
+                        @foreach($footerCategories as $category)
+                            <li class="mb-2">
+                                <a href="{{ route('home', ['category' => $category->id]) }}" class="text-white-50 text-decoration-none hover-primary">
+                                    {{ $category->name }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
-                <div class="col-lg-2 col-6 mb-4">
-                    <h5>Bantuan</h5>
-                    <a href="#" class="footer-link">Cara Pesan</a>
-                    <a href="#" class="footer-link">Pengiriman</a>
-                    <a href="#" class="footer-link">Hubungi Kami</a>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <h5>Newsletter</h5>
-                    <p class="text-muted small">Dapatkan info promo terbaru.</p>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Email Anda" aria-label="Email Anda">
-                        <button class="btn btn-primary" type="button">Subscribe</button>
-                    </div>
+
+                {{-- Contact Section --}}
+                <div class="col-lg-5 col-md-12">
+                    <h6 class="fw-bold text-uppercase mb-3" style="letter-spacing: 1px;">Kontak</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2 d-flex align-items-start">
+                            <i class="bi bi-house-fill text-white-50 me-2 mt-1"></i>
+                            <span class="text-white-50">Batam, Kepulauan Riau</span>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <i class="bi bi-envelope-fill text-white-50 me-2 mt-1"></i>
+                            <a href="mailto:iggstore@gmail.com" class="text-white-50 text-decoration-none hover-primary">
+                                iggstore@gmail.com
+                            </a>
+                        </li>
+                        <li class="mb-2 d-flex align-items-start">
+                            <i class="bi bi-telephone-fill text-white-50 me-2 mt-1"></i>
+                            <a href="tel:+6285968268782" class="text-white-50 text-decoration-none hover-primary">
+                                +62 859-6826-8782
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-            --}}
-            <div class="row mt-4 pt-4 border-top">
-                <div class="col text-center text-muted small">
-                    &copy; {{ date('Y') }} IGG Store. All rights reserved.
+
+            {{-- Copyright --}}
+            <div class="row mt-4 pt-4 border-top border-secondary">
+                <div class="col text-center">
+                    <p class="text-white-50 small mb-0">
+                        Hak Cipta © {{ date('Y') }} IGGStore. Semua hak dilindungi.
+                    </p>
                 </div>
             </div>
         </div>
     </footer>
+
+    <style>
+        .hover-primary:hover {
+            color: #0ea5e9 !important;
+            transition: color 0.3s ease;
+        }
+    </style>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">

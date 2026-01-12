@@ -30,6 +30,48 @@ class Product extends Model
     {
         return $this->image_path
             ? asset('storage/' . $this->image_path)
-            : asset('images/default-product.png'); // siapkan fallback
+            : asset('images/default-product.png');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    /**
+     * Get average rating for this product
+     */
+    public function averageRating()
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
+
+    /**
+     * Get total number of reviews
+     */
+    public function totalReviews()
+    {
+        return $this->reviews()->count();
+    }
+
+    /**
+     * Check if product is in stock
+     */
+    public function isInStock()
+    {
+        return $this->stock > 0;
+    }
+
+    /**
+     * Check if product is low stock (less than 10)
+     */
+    public function isLowStock()
+    {
+        return $this->stock > 0 && $this->stock < 10;
     }
 }

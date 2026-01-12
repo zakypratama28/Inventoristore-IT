@@ -94,6 +94,7 @@ class ProductService
             'name'        => $data['name'],
             'description' => $data['description'] ?? null,
             'price'       => $data['price'],
+            'stock'       => $data['stock'],
             'category_id' => $data['category_id'] ?? null,
             'image_path'  => $data['image_path'] ?? $product->image_path,
         ]);
