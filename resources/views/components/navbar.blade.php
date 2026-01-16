@@ -25,19 +25,20 @@
                             <i class="bi bi-heart"></i> {{ __('messages.wishlist') }}
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('blog.*') ? 'active' : '' }}"
-                            href="{{ route('blog.index') }}">
-                            <i class="bi bi-newspaper"></i> Blog
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('faq.*') ? 'active' : '' }}"
-                            href="{{ route('faq.index') }}">
-                            <i class="bi bi-question-circle"></i> FAQ
-                        </a>
-                    </li>
                 @endauth
+                {{-- Blog & FAQ visible to all users (including guests) --}}
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('blog.*') ? 'active' : '' }}"
+                        href="{{ route('blog.index') }}">
+                        <i class="bi bi-newspaper"></i> Blog
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('faq.*') ? 'active' : '' }}"
+                        href="{{ route('faq.index') }}">
+                        <i class="bi bi-question-circle"></i> FAQ
+                    </a>
+                </li>
             </ul>
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">

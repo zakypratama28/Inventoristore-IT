@@ -74,4 +74,17 @@ class Product extends Model
     {
         return $this->stock > 0 && $this->stock < 10;
     }
+
+    /**
+     * Get total sold count for this product
+     * Counts quantity from all completed orders
+     */
+    public function getSoldCountAttribute()
+    {
+        return $this->orderItems()
+            ->whereHas('order', function ($query) {
+                $query->where('status', 'completed');
+            })
+            ->sum('quantity');
+    }
 }

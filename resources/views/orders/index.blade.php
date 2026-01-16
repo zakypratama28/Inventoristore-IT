@@ -176,19 +176,12 @@
                                                         <span class="badge bg-success">
                                                             <i class="bi bi-check-circle me-1"></i>Sudah Direview ({{ $existingReview->rating }} ⭐)
                                                         </span>
-                                                    @else
-                                                        <button type="button" 
-                                                                class="btn btn-primary btn-sm rounded-pill"
-                                                                data-bs-toggle="collapse" 
-                                                                data-bs-target="#reviewForm{{ $order->id }}_{{ $item->id }}">
-                                                            <i class="bi bi-pencil me-1"></i>Tulis Review
-                                                        </button>
                                                     @endif
                                                 </div>
                                             </div>
 
                                             @if(!$existingReview)
-                                                <div class="collapse mt-3" id="reviewForm{{ $order->id }}_{{ $item->id }}">
+                                                <div class="mt-3" id="reviewForm{{ $order->id }}_{{ $item->id }}">
                                                     <form action="{{ route('orders.reviews.store') }}" method="POST">
                                                         @csrf
                                                         <input type="hidden" name="order_id" value="{{ $order->id }}">
@@ -196,12 +189,12 @@
                                                         
                                                         <div class="mb-3">
                                                             <label class="form-label fw-semibold">Rating</label>
-                                                            <div class="star-rating" data-form-id="reviewForm{{ $order->id }}_{{ $item->id }}">
+                                                            <div class="star-rating-tokopedia" id="starRating{{ $order->id }}_{{ $item->id }}">
+                                                                <input type="hidden" name="rating" id="ratingInput{{ $order->id }}_{{ $item->id }}" value="" required>
                                                                 @for($i = 1; $i <= 5; $i++)
-                                                                    <input type="radio" id="star{{ $i }}_{{ $order->id }}_{{ $item->id }}" name="rating" value="{{ $i }}" required>
-                                                                    <label for="star{{ $i }}_{{ $order->id }}_{{ $item->id }}">
+                                                                    <span class="star-icon" data-rating="{{ $i }}" data-target="ratingInput{{ $order->id }}_{{ $item->id }}">
                                                                         <i class="bi bi-star-fill"></i>
-                                                                    </label>
+                                                                    </span>
                                                                 @endfor
                                                             </div>
                                                         </div>
@@ -243,3 +236,85 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .star-rating-tokopedia {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .star-rating-tokopedia .star-icon {
+        cursor: pointer;
+        font-size: 1.75rem;
+        color: #d1d5db;
+        transition: color 0.15s ease, transform 0.15s ease;
+    }
+    
+    .star-rating-tokopedia .star-icon:hover {
+        transform: scale(1.1);
+    }
+    
+    .star-rating-tokopedia .star-icon.active {
+        color: #fbbf24;
+    }
+    
+    .star-rating-tokopedia .star-icon.hover {
+        color: #fcd34d;
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all star rating components
+    document.querySelectorAll('.star-rating-tokopedia').forEach(function(container) {
+        const stars = container.querySelectorAll('.star-icon');
+        
+        stars.forEach(function(star) {
+            // Click handler
+            star.addEventListener('click', function() {
+                const rating = parseInt(this.dataset.rating);
+                const targetId = this.dataset.target;
+                const input = document.getElementById(targetId);
+                
+                if (input) {
+                    input.value = rating;
+                }
+                
+                // Update active states
+                stars.forEach(function(s) {
+                    const sRating = parseInt(s.dataset.rating);
+                    if (sRating <= rating) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Hover handlers
+            star.addEventListener('mouseenter', function() {
+                const rating = parseInt(this.dataset.rating);
+                
+                stars.forEach(function(s) {
+                    const sRating = parseInt(s.dataset.rating);
+                    if (sRating <= rating) {
+                        s.classList.add('hover');
+                    } else {
+                        s.classList.remove('hover');
+                    }
+                });
+            });
+            
+            star.addEventListener('mouseleave', function() {
+                stars.forEach(function(s) {
+                    s.classList.remove('hover');
+                });
+            });
+        });
+    });
+});
+</script>
+@endpush
