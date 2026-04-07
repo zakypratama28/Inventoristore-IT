@@ -66,8 +66,7 @@ class AuthController extends Controller
             \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\VerifyEmail($user));
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Mail Error: ' . $e->getMessage());
-            // Simpan flash message agar user tahu mail gagal tapi kode ada di log
-            session()->flash('warning', 'Sistem gagal mengirim email. Jika Anda di localhost, cek storage/logs/laravel.log untuk kodenya.');
+            session()->flash('warning', 'Sistem gagal mengirim email verifikasi. Silakan klik \'Kirim Ulang\' setelah beberapa saat.');
         }
 
         Auth::login($user);
@@ -85,10 +84,10 @@ class AuthController extends Controller
 
         try {
             \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\VerifyEmail($user));
-            return back()->with('success', 'Kode verifikasi baru telah dikirim.');
+            return back()->with('success', 'Kode verifikasi baru telah dikirim ke email Anda.');
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Mail Error: ' . $e->getMessage());
-            return back()->with('warning', 'Gagal mengirim email. Cek file log untuk kode: ' . $code);
+            return back()->with('warning', 'Gagal mengirim email. Pastikan email Anda benar dan coba lagi beberapa saat.');
         }
     }
 
