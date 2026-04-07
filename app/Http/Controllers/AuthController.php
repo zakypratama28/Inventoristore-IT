@@ -66,12 +66,25 @@ class AuthController extends Controller
             \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\VerifyEmail($user));
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Mail Error: ' . $e->getMessage());
+
+            // Di production: auto-verifikasi user agar tetap bisa login
+            if (app()->environment('production')) {
+                $user->update([
+                    'email_verified_at' => now(),
+                    'verification_code'  => null,
+                ]);
+                Auth::login($user);
+                return redirect(route('home'))->with('success', 'Akun berhasil dibuat! Selamat berbelanja.');
+            }
+
+            // Di local: tampilkan peringatan
             session()->flash('warning', 'Sistem gagal mengirim email verifikasi. Silakan klik \'Kirim Ulang\' setelah beberapa saat.');
         }
 
         Auth::login($user);
 
         return redirect(route('verification.notice'));
+
     }
 
     public function resendVerificationCode(Request $request)
