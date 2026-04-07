@@ -13,3 +13,13 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+
+# Large files - exclude from deployment
+*.zip
+*.tar.gz
+iggstore-deploy.zip
+
+# Temporary files
+toArray()
+count()
+insert_blog_articles.php
